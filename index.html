@@ -388,42 +388,42 @@
       renderizar(cat==='todos'?catalogo:catalogo.filter(x=>x.categoria===cat));
     }
     renderizar();
-  </script
-   <!-- ===== Voiceflow Chat Widget (fijo y pequeño) ===== -->
-<script type="text/javascript">
-  (function(d,t){
-    var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-    g.src='https://cdn.voiceflow.com/widget/bundle.mjs';g.type='text/javascript';g.async=true;
-    g.onload=function(){
-      window.voiceflow.chat.load({
-        verify: { projectID: '6873fdd8bf484647c17091d9' },
-        url: 'https://general-runtime.voiceflow.com',
-        versionID: 'production',
-        render: {
-          mode: 'embedded',
-          target: document.body,
-        },
-        styles: {
-          position: 'fixed',
-          bottom: '80px',       /* sobre el carrito */
-          right: '20px',
-          width: '350px',
-          height: '500px',
-          maxWidth: '90vw',
-          maxHeight: '70vh',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(0,0,0,.25)',
-          zIndex: '997'
-        }
-      });
-    };
-    s.parentNode.insertBefore(g,s);
-  })(document,'script');
-</script>
-<!-- ===== Fin Voiceflow ===== -->
+  </script>
+  <!-- ===== Voiceflow Chat Widget (fijo y pequeño) ===== -->
+  <script type="text/javascript">
+    (function(d,t){
+      var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src='https://cdn.voiceflow.com/widget/bundle.mjs';g.type='text/javascript';g.async=true;
+      g.onload=function(){
+        window.voiceflow.chat.load({
+          verify: { projectID: '6873fdd8bf484647c17091d9' },
+          url: 'https://general-runtime.voiceflow.com',
+          versionID: 'production',
+          render: {
+            mode: 'embedded',
+            target: document.body,
+          },
+          styles: {
+            position: 'fixed',
+            bottom: '80px',
+            right: '20px',
+            width: '350px',
+            height: '500px',
+            maxWidth: '90vw',
+            maxHeight: '70vh',
+            borderRadius: '12px',
+            boxShadow: '0 8px 24px rgba(0,0,0,.25)',
+            zIndex: '997'
+          }
+        });
+      };
+      s.parentNode.insertBefore(g,s);
+    })(document,'script');
+  </script>
+  <!-- ===== Fin Voiceflow ===== -->
 </body>
-
 </html>
+
 
 
 
