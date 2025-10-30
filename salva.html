@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -34,7 +34,7 @@
     .total{font-size:1.4rem;font-weight:bold;color:var(--tierra);margin-top:1rem;text-align:right}
     .botones{display:flex;gap:1rem;margin-top:1.5rem}
     .botones button{flex:1;padding:.75rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
-    .btn-wsp{background:#25d366;color:#fff}
+    .btn-wsp{background:#f3f7f5;color:#fff}
     .btn-wsp:hover{background:#1ebe5d}
     .btn-cancel{background:#ccc;color:#fff}
     .btn-cancel:hover{background:#bbb}
@@ -53,32 +53,81 @@
     button.inline{background:transparent;border:1px solid var(--hoja);padding:.3rem .6rem;border-radius:6px;cursor:pointer}
   </style>
 </head>
+<script>
+  // Añade sombra al header y al menú cuando el usuario hace scroll
+  window.addEventListener("scroll", () => {
+    const header = document.getElementById("mainHeader");
+    const filtros = document.getElementById("filtros");
+    if (window.scrollY > 10) {
+      header.style.boxShadow = "0 4px 8px rgba(0,0,0,0.25)";
+      filtros.style.boxShadow = "0 4px 8px rgba(0,0,0,0.15)";
+    } else {
+      header.style.boxShadow = "none";
+      filtros.style.boxShadow = "none";
+    }
+  });
+</script>
+
+
+
 <body>
+<!-- HEADER FIJO -->
+<header style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-image: linear-gradient(to bottom, rgba(58, 107, 74, 0.9), rgba(10, 105, 42, 0.9));
+  background-size: cover;
+  background-position: center;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  color: white;
+  z-index: 1000;
+">
+  <img src="logofrank.jpg" alt="Logo Bazar El Romero"
+       style="width: 120px; height: auto; border-radius: 4px; margin-right: 1rem;">
+  <div>
+    <h1 style="margin: 0; font-size: 1.8em;">Bazar El Romero</h1>
+    <p style="margin: 0; font-size: 1em; opacity: 0.9;">Ropa, hogar, plantas y más · Villa Clara</p>
+  </div>
+</header>
 
-  <header>
-    <h1>Bazar El Romero</h1>
-    <p>Ropa, hogar, plantas y más · Villa Clara</p>
-  </header>
-
-  <section style="text-align:center;padding:2rem;background:var(--crema)">
-    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=60" alt="Bazar El Romero" style="max-width:100%;border-radius:12px;">
+ <section style="text-align:center;padding:2rem;background:var(--crema)">
+    <img src="hola5.png" alt="Bazar El Romero" style="max-width:50%;border-radius:12px;">
     <p style="margin-top:1rem;font-style:italic;color:var(--tierra)">
       “Calidad y cariño en cada detalle.”
     </p>
   </section>
 
-  <div id="filtros">
-    <button class="btn-filtro activo" onclick="filtrar('todos', event)">Todos</button>
-    <button class="btn-filtro" onclick="filtrar('Ropa de Mujer', event)">Ropa de Mujer</button>
-    <button class="btn-filtro" onclick="filtrar('Ropa de Hombre', event)">Ropa de Hombre</button>
-    <button class="btn-filtro" onclick="filtrar('Ropa de Niña', event)">Ropa de Niña</button>
-    <button class="btn-filtro" onclick="filtrar('Cerámica', event)">Cerámica</button>
-    <button class="btn-filtro" onclick="filtrar('Muñequería', event)">Muñequería</button>
-    <button class="btn-filtro" onclick="filtrar('Plásticos para el Hogar', event)">Plásticos</button>
-    <button class="btn-filtro" onclick="filtrar('Plantas Aromáticas y Medicinales', event)">Plantas</button>
-  </div>
 
-  <section id="productos"></section>
+<!-- MENÚ FIJO DE CATEGORÍAS -->
+<div id="filtros" style="
+  position: fixed;
+  top: 160px; /* justo debajo del header */
+  left: 0;
+  width: 100%;
+  background: var(--crema);
+  border-bottom: 1px solid var(--tierra);
+  z-index: 999;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+">
+  <button class="btn-filtro activo" onclick="filtrar('todos', event)">Todos</button>
+  <button class="btn-filtro" onclick="filtrar('Ropa de Mujer', event)">Ropa de Mujer</button>
+  <button class="btn-filtro" onclick="filtrar('Ropa de Hombre', event)">Ropa de Hombre</button>
+  <button class="btn-filtro" onclick="filtrar('Ropa de Niña', event)">Ropa de Niña</button>
+  <button class="btn-filtro" onclick="filtrar('Cerámica', event)">Cerámica</button>
+  <button class="btn-filtro" onclick="filtrar('Muñequería', event)">Muñequería</button>
+  <button class="btn-filtro" onclick="filtrar('Plásticos para el Hogar', event)">Plásticos</button>
+  <button class="btn-filtro" onclick="filtrar('Plantas Aromáticas y Medicinales', event)">Plantas</button>
+</div>
+<section id="productos"></section>
 
   <div id="carritoFlotante" onclick="mostrarCarrito()">
     <span id="carritoIcon">🛒</span>
