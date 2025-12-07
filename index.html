@@ -167,12 +167,17 @@
       try {
         const res = await fetch(`${API_BASE}/products`);
         if (!res.ok) throw new Error('No se pudo obtener catálogo desde servidor');
-        catalogo = await res.json();
-        console.log('Catálogo cargado desde servidor, elementos:', catalogo.length);
+        let productos = await res.json();
+        // Filtrar productos inactivos (solo mostrar activos en la tienda pública)
+        catalogo = productos.filter(p => p.active !== false);
+        console.log('Catálogo cargado desde servidor, elementos:', catalogo.length, '(total:', productos.length, ')');
       } catch (e) {
         console.warn('No se pudo conectar al servidor, usando fallback localStorage:', e.message);
         const local = JSON.parse(localStorage.getItem('romeroCatalogo') || 'null');
-        if (local && local.length) catalogo = local;
+        if (local && local.length) {
+          // Filtrar productos inactivos también en el fallback
+          catalogo = local.filter(p => p.active !== false);
+        }
       }
     }
 
@@ -286,7 +291,9 @@
     const cont = document.getElementById('productos');
     function renderizar(lista = catalogo){
       cont.innerHTML = '';
-      lista.forEach(p=>{
+      // Filtrar solo productos activos para mostrar en la tienda
+      const productosActivos = lista.filter(p => p.active !== false);
+      productosActivos.forEach(p=>{
         const tarjeta = document.createElement('div');
         tarjeta.className = 'tarjeta';
         
@@ -335,7 +342,9 @@
     function filtrar(cat, ev){
       document.querySelectorAll('.btn-filtro').forEach(b=>b.classList.remove('activo'));
       if(ev && ev.target) ev.target.classList.add('activo');
-      renderizar(cat === 'todos' ? catalogo : catalogo.filter(x=>x.categoria === cat));
+      // Filtrar por categoría y asegurar que solo se muestren productos activos
+      const listaFiltrada = cat === 'todos' ? catalogo : catalogo.filter(x=>x.categoria === cat);
+      renderizar(listaFiltrada.filter(p => p.active !== false));
     }
 
     // render inicial: cargar catálogo desde servidor (fallback localStorage)
