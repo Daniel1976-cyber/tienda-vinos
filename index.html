@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Librería para leer Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- DOMPurify para sanitizar HTML y prevenir XSS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
   <style>
     :root{--verde:#3a6b4a;--crema:#f5f1e8;--tierra:#8c5e46;--hoja:#5a8a3a;--texto:#2e2e2e}
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
@@ -38,20 +40,7 @@
     .btn-wsp:hover{background:#1ebe5d}
     .btn-cancel{background:#ccc;color:#fff}
     .btn-cancel:hover{background:#bbb}
-    #loginScreen,#adminScreen {position: fixed;inset: 0;background: #fff;overflow-y: auto; /* Añadir scroll vertical */
-     display: block; /* No usar flex para evitar centrar vertical */padding: 2rem;box-sizing: border-box;z-index: 1000;}
-    .box{width:90%;max-width:400px;background:var(--crema);border:2px solid var(--verde);border-radius:12px;padding:2rem;text-align:center}
-    .box input,.box button{width:100%;margin:.5rem 0;padding:.7rem;border-radius:8px;border:1px solid var(--tierra)}
-    .box button{background:var(--verde);color:#fff;font-weight:bold;cursor:pointer}
-    .box button:hover{background:var(--hoja)}
-    table{width:100%;border-collapse:collapse;margin-top:1rem}
-    th,td{padding:.5rem;border:1px solid var(--tierra)}
-    th{background:var(--verde);color:#fff}
-    img.mini{width:60px;height:60px;object-fit:cover;border-radius:4px}
-    .centrado{display:flex;justify-content:center;gap:1rem;margin-top:1rem;flex-wrap:wrap}
-    .small{font-size:.8rem;color:var(--tierra);margin-top:.3rem}
     footer{text-align:center;padding:1.5rem;background:var(--tierra);color:#fff;margin-top:2rem}
-    button.inline{background:transparent;border:1px solid var(--hoja);padding:.3rem .6rem;border-radius:6px;cursor:pointer}
   </style>
 </head>
 <script>
@@ -148,80 +137,7 @@
     </div>
   </div>
 
-  <div id="loginScreen" style="display:none">
-    <div class="box">
-      <h2>Acceso Administración</h2>
-      <input id="passInput" type="password" placeholder="Contraseña">
-      <button onclick="checkPass()">Entrar</button>
-      <button onclick="location.href='?'">Volver a la tienda</button>
-    </div>
-  </div>
 
-  <div id="adminScreen" style="display:none">
-    <div class="box" style="max-width:900px;width:96%">
-      <h2>Panel de Administración</h2>
-      <div class="centrado">
-        <button onclick="mostrarForm('add')">Añadir Producto</button>
-        <button onclick="mostrarCambioPass()">Cambiar Contraseña</button>
-        <button onclick="location.href='?'">Salir Admin</button>
-        <button onclick="exportarCatalogo('excel')">Exportar Catálogo a Excel</button>
-        <button onclick="exportarCatalogo('json')">Exportar Catálogo a JSON</button>
-
-      </div>
-
-      <!-- Carga Excel -->
-      <input type="file" id="excelFile" accept=".xlsx,.xls" style="margin-top:1rem">
-      <button onclick="cargarExcel()">Cargar productos desde Excel</button>
-
-      <!-- Form producto -->
-      <div id="formDiv" style="display:none;margin-top:1rem;text-align:left">
-        <input id="fId" type="hidden">
-        <input id="fNombre" placeholder="Nombre" style="width:48%">
-        <input id="fPrecio" type="number" placeholder="Precio CUP" style="width:48%;margin-left:4%">
-        <select id="fCat" style="width:48%;margin-top:.5rem">
-          <option value="Ropa de Mujer">Ropa de Mujer</option>
-          <option value="Ropa de Hombre">Ropa de Hombre</option>
-          <option value="Ropa de Niña">Ropa de Niña</option>
-          <option value="Cerámica">Cerámica</option>
-          <option value="Muñequería">Muñequería</option>
-          <option value="Plásticos para el Hogar">Plásticos para el Hogar</option>
-          <option value="Plantas Aromáticas y Medicinales">Plantas Aromáticas y Medicinales</option>
-          <option value="Plomería PVC">Plomería PVC</option>
-        </select>
-        <select id="fDisp" style="width:48%;margin-left:4%;margin-top:.5rem">
-          <option value="true">Disponible</option>
-          <option value="false">Agotado</option>
-        </select>
-        <input id="fFile" type="file" accept="image/*" style="margin-top:.5rem">
-        <div class="small">⬆️ O bien sube un archivo desde tu PC</div>
-        <input id="fUrl" placeholder="https://tu-imagen.jpg" style="margin-top:.5rem">
-        <div class="small">⬆️ O pega aquí el link de tu imagen ya subida a internet</div>
-        <img id="fImg" class="mini" style="display:block;margin:.5rem 0">
-        <button onclick="guardar()">Guardar</button>
-        <button onclick="mostrarForm(null)">Cancelar</button>
-      </div>
-
-      <!-- Form cambio pass -->
-      <div id="passDiv" style="display:none;margin-top:1rem;text-align:left">
-        <input id="passActual" type="password" placeholder="Contraseña actual">
-        <input id="passNueva1" type="password" placeholder="Nueva contraseña">
-        <input id="passNueva2" type="password" placeholder="Repite nueva">
-        <button onclick="cambiarPass()">Actualizar contraseña</button>
-        <button onclick="mostrarCambioPass(null)">Cancelar</button>
-      </div>
-
-      <!-- Listado productos -->
-      <table>
-        <thead><tr><th>Imagen</th><th>Nombre</th><th>Precio</th><th>Cat</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody id="listaProd"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Contenedor para cargar la interfaz de administración avanzada (cargar produstos.html) -->
-  <div id="adminIframe" style="display:none;padding:1rem">
-    <!-- iframe se inyectará aquí cuando se detecte ?admin en la URL -->
-  </div>
 
   <footer>
     &copy; 2025 Bazar El Romero – Villa Clara
@@ -229,16 +145,27 @@
 
   <script>
     /* ----------  CONFIG / DATOS INICIALES  ---------- */
-    const PASS_DEFAULT = 'romero2025';
-    let PASS = localStorage.getItem('romeroPass') || PASS_DEFAULT;
-    // El catálogo ahora se carga desde el backend para que los cambios desde el panel
-    // de administración (server) se reflejen inmediatamente en la tienda.
+    const API_BASE = 'http://localhost:3000';
+    // El catálogo se carga desde el backend
     let catalogo = [];
+    
+    // Función para escapar HTML (prevenir XSS)
+    function escapeHtml(text) {
+      if (typeof text !== 'string') return '';
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
 
     // Carga catálogo desde el servidor; si falla, intenta usar localStorage como fallback.
     async function loadCatalogFromServer() {
       try {
-        const res = await fetch('http://localhost:3000/products');
+        const res = await fetch(`${API_BASE}/products`);
         if (!res.ok) throw new Error('No se pudo obtener catálogo desde servidor');
         catalogo = await res.json();
         console.log('Catálogo cargado desde servidor, elementos:', catalogo.length);
@@ -249,195 +176,6 @@
       }
     }
 
-    /* ----------  ADMIN  ---------- */
-    if (location.search.includes('admin')) document.getElementById('loginScreen').style.display = 'flex';
-
-    function checkPass(){
-      if(document.getElementById('passInput').value === PASS){
-        document.getElementById('loginScreen').style.display='none';
-        document.getElementById('adminScreen').style.display='flex';
-        mostrarTabla();
-      } else {
-        alert('Contraseña incorrecta');
-      }
-    }
-
-    function mostrarCambioPass(){
-      const div=document.getElementById('passDiv');
-      div.style.display = div.style.display === 'none' ? 'block' : 'none';
-      mostrarForm(null);
-    }
-
-    function cambiarPass(){
-      const actual=document.getElementById('passActual').value;
-      const nueva1=document.getElementById('passNueva1').value;
-      const nueva2=document.getElementById('passNueva2').value;
-      if(actual !== PASS){ alert('Contraseña actual incorrecta'); return; }
-      if(!nueva1 || nueva1 !== nueva2){ alert('Las nuevas contraseñas no coinciden o están vacías'); return; }
-      PASS = nueva1;
-      localStorage.setItem('romeroPass', PASS);
-      alert('Contraseña actualizada');
-      mostrarCambioPass(null);
-    }
-
-    let editando = false;
-
-    function mostrarForm(modo, id){
-      const form = document.getElementById('formDiv');
-      form.style.display = modo ? 'block' : 'none';
-      document.getElementById('passDiv').style.display = 'none'; // cerrar pass si abierto
-      if(!modo) return;
-      if(modo === 'add'){
-        editando = false;
-        ['fId','fNombre','fPrecio','fUrl'].forEach(i=>document.getElementById(i).value='');
-        document.getElementById('fCat').value = 'Ropa de Mujer';
-        document.getElementById('fDisp').value = 'true';
-        document.getElementById('fImg').src = '';
-        document.getElementById('fFile').value = '';
-      } else if (modo === 'edit'){
-        editando = true;
-        const p = catalogo.find(x => x.id === id);
-        if(!p) return alert('Producto no encontrado');
-        document.getElementById('fId').value = p.id;
-        document.getElementById('fNombre').value = p.nombre;
-        document.getElementById('fPrecio').value = p.precio;
-        document.getElementById('fCat').value = p.categoria;
-        document.getElementById('fDisp').value = p.disponible ? 'true' : 'false';
-        document.getElementById('fImg').src = p.img;
-        document.getElementById('fUrl').value = p.img;
-      }
-    }
-
-    // listeners único para inputs de imagen
-    document.getElementById('fFile').addEventListener('change', function(e){
-      const file = e.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = function(ev){
-        document.getElementById('fImg').src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.getElementById('fUrl').addEventListener('input', function(){
-      const url = this.value.trim();
-      if(url) document.getElementById('fImg').src = url;
-    });
-
-    function guardar(){
-      const id = editando ? Number(document.getElementById('fId').value) : Date.now();
-      const nombre = document.getElementById('fNombre').value.trim();
-      const precio = Number(document.getElementById('fPrecio').value);
-      const categoria = document.getElementById('fCat').value;
-      const disponible = document.getElementById('fDisp').value === 'true';
-      let img = '';
-      const urlInput = document.getElementById('fUrl').value.trim();
-      const fileInput = document.getElementById('fFile').files[0];
-
-      if(!nombre || !precio){ alert('Faltan datos (nombre y precio obligatorios)'); return; }
-
-      if(urlInput){
-        img = urlInput;
-        saveProduct(id, nombre, precio, categoria, disponible, img);
-      } else if (fileInput){
-        const reader = new FileReader();
-        reader.onload = function(ev){
-          img = ev.target.result;
-          saveProduct(id, nombre, precio, categoria, disponible, img);
-        };
-        reader.readAsDataURL(fileInput);
-        return;
-      } else {
-        img = 'https://images.unsplash.com/photo-1520732483780-842b8ec93380?auto=format&fit=crop&w=600&q=60';
-        saveProduct(id, nombre, precio, categoria, disponible, img);
-      }
-    }
-
-    function saveProduct(id, nombre, precio, categoria, disponible, img){
-      precio = Number(precio) || 0;
-      if(!nombre || !precio){ alert('Faltan datos (nombre y precio obligatorios)'); return; }
-
-      if(editando){
-        const idx = catalogo.findIndex(x=>x.id===id);
-        if(idx === -1) return alert('No se encontró el producto a editar');
-        catalogo[idx] = {id, nombre, precio, categoria, disponible, img};
-      } else {
-        catalogo.push({id, nombre, precio, categoria, disponible, img});
-      }
-      localStorage.setItem('romeroCatalogo', JSON.stringify(catalogo));
-      mostrarForm(null);
-      mostrarTabla();
-      renderizar();
-    }
-
-    function borrar(id){
-      if(!confirm('¿Borrar?')) return;
-      catalogo = catalogo.filter(x=>x.id!==id);
-      localStorage.setItem('romeroCatalogo', JSON.stringify(catalogo));
-      mostrarTabla();
-      renderizar();
-    }
-
-    function mostrarTabla(){
-      const tbody = document.getElementById('listaProd');
-      tbody.innerHTML = '';
-      catalogo.forEach(p=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><img class="mini" src="${p.img}"></td>
-          <td>${p.nombre}</td>
-          <td>${Number(p.precio).toFixed(2)} CUP</td>
-          <td>${p.categoria}</td>
-          <td>${p.disponible ? 'Disp' : 'Agot'}</td>
-          <td>
-            <button class="inline" onclick="mostrarForm('edit', ${p.id})">Editar</button>
-            <button class="inline" onclick="borrar(${p.id})">Borrar</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    /* ----------  EXCEL  (crear productos automáticamente) ---------- */
-    function cargarExcel() {
-      const input = document.getElementById('excelFile');
-      if(!input.files.length) return alert('Seleccioná un archivo Excel');
-
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e){
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-        if(rows.length < 2) return alert('El archivo debe tener al menos 1 producto (fila de encabezado + 1 fila)');
-         
-        // Vaciar el catálogo antes de cargar el nuevo Excel
-        catalogo = [];
-
-        // iterar filas (saltar encabezado)
-        let created = 0;
-        for(let i=1; i<rows.length; i++){
-          const [categoria, nombre, precio] = rows[i];
-          if(!nombre || !precio) continue;
-          const id = Date.now() + i;
-          const cat = (categoria && categoria.toString().trim()) ? categoria.toString().trim() : 'Ropa de Mujer';
-          const nm = nombre.toString().trim();
-          const pr = parseFloat(precio) || 0;
-          const disponible = true;
-          const img = 'https://images.unsplash.com/photo-1520732483780-842b8ec93380?auto=format&fit=crop&w=600&q=60';
-          catalogo.push({id, nombre: nm, precio: pr, categoria: cat, disponible, img});
-          created++;
-        }
-        if(created > 0){
-          localStorage.setItem('romeroCatalogo', JSON.stringify(catalogo));
-          mostrarTabla();
-          renderizar();
-        }
-        alert(`Carga completa. Productos creados: ${created}`);
-      };
-      reader.readAsArrayBuffer(file);
-    }
 
     /* ----------  CARRITO  ---------- */
     let carrito = [];
@@ -469,25 +207,47 @@
       const totalEl = document.getElementById('totalCarrito');
       lista.innerHTML = '';
       if(carrito.length === 0){
-        lista.innerHTML = '<p style="color:#666">No hay productos en el carrito</p>';
+        const p = document.createElement('p');
+        p.style.color = '#666';
+        p.textContent = 'No hay productos en el carrito';
+        lista.appendChild(p);
         totalEl.textContent = '0.00 CUP';
       } else {
         let suma = 0;
         carrito.forEach(l=>{
-          const div = document.createElement('div');
-          div.className = 'itemCarrito';
-          div.innerHTML = `
-            <div>
-              <strong>${l.nombre}</strong><br>
-              <small>${l.cant} × ${Number(l.precio).toFixed(2)} CUP</small>
-            </div>
-            <div>
-              <button class="inline" onclick="modCant(${l.id}, -1)">−</button>
-              <span style="margin:0 .6rem">${l.cant}</span>
-              <button class="inline" onclick="modCant(${l.id}, 1)">+</button>
-            </div>
-          `;
-          lista.appendChild(div);
+        const div = document.createElement('div');
+        div.className = 'itemCarrito';
+        
+        const divInfo = document.createElement('div');
+        const strong = document.createElement('strong');
+        strong.textContent = l.nombre || '';
+        const br = document.createElement('br');
+        const small = document.createElement('small');
+        small.textContent = `${l.cant} × ${Number(l.precio).toFixed(2)} CUP`;
+        divInfo.appendChild(strong);
+        divInfo.appendChild(br);
+        divInfo.appendChild(small);
+        
+        const divCant = document.createElement('div');
+        const btnMenos = document.createElement('button');
+        btnMenos.className = 'inline';
+        btnMenos.textContent = '−';
+        btnMenos.onclick = () => modCant(l.id, -1);
+        const span = document.createElement('span');
+        span.style.margin = '0 .6rem';
+        span.textContent = l.cant;
+        const btnMas = document.createElement('button');
+        btnMas.className = 'inline';
+        btnMas.textContent = '+';
+        btnMas.onclick = () => modCant(l.id, 1);
+        
+        divCant.appendChild(btnMenos);
+        divCant.appendChild(span);
+        divCant.appendChild(btnMas);
+        
+        div.appendChild(divInfo);
+        div.appendChild(divCant);
+        lista.appendChild(div);
           suma += l.cant * l.precio;
         });
         totalEl.textContent = suma.toFixed(2) + ' CUP';
@@ -529,15 +289,45 @@
       lista.forEach(p=>{
         const tarjeta = document.createElement('div');
         tarjeta.className = 'tarjeta';
-        tarjeta.innerHTML = `
-          <img src="${p.img}" alt="${p.nombre}">
-          <div class="info">
-            <h3>${p.nombre}</h3>
-            <span class="${p.disponible ? 'disponible' : 'agotado'}">${p.disponible ? 'Disponible' : 'Agotado'}</span>
-            <div class="precio">${Number(p.precio).toFixed(2)} CUP</div>
-            <button onclick="addCarrito(${p.id})" style="margin-top:.5rem;padding:.4rem .8rem;border:none;border-radius:8px;background:var(--hoja);color:#fff;font-weight:bold;cursor:pointer">Agregar</button>
-          </div>
-        `;
+        
+        // Crear elementos de forma segura
+        const img = document.createElement('img');
+        img.src = escapeHtml(p.img || '');
+        img.alt = escapeHtml(p.nombre || '');
+        
+        // Manejar errores de carga de imagen
+        img.onerror = function() {
+          // Si la imagen falla al cargar, usar placeholder
+          this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2Y1ZjFlOCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM4YzVlNDYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5TaW4gSW1hZ2VuPC90ZXh0Pjwvc3ZnPg==';
+          this.onerror = null; // Evitar loop infinito
+        };
+        
+        const info = document.createElement('div');
+        info.className = 'info';
+        
+        const h3 = document.createElement('h3');
+        h3.textContent = p.nombre || '';
+        
+        const span = document.createElement('span');
+        span.className = p.disponible ? 'disponible' : 'agotado';
+        span.textContent = p.disponible ? 'Disponible' : 'Agotado';
+        
+        const precio = document.createElement('div');
+        precio.className = 'precio';
+        precio.textContent = Number(p.precio).toFixed(2) + ' CUP';
+        
+        const btn = document.createElement('button');
+        btn.textContent = 'Agregar';
+        btn.style.cssText = 'margin-top:.5rem;padding:.4rem .8rem;border:none;border-radius:8px;background:var(--hoja);color:#fff;font-weight:bold;cursor:pointer';
+        btn.onclick = () => addCarrito(p.id);
+        
+        info.appendChild(h3);
+        info.appendChild(span);
+        info.appendChild(precio);
+        info.appendChild(btn);
+        
+        tarjeta.appendChild(img);
+        tarjeta.appendChild(info);
         cont.appendChild(tarjeta);
       });
     }
@@ -550,52 +340,6 @@
 
     // render inicial: cargar catálogo desde servidor (fallback localStorage)
     loadCatalogFromServer().then(() => renderizar());
-
-    // si venimos a admin, cargar la interfaz de administración.
-    // Si se desea la antigua (localStorage) se puede añadir '?admin=legacy'
-    if (location.search.includes('admin')) {
-      // Si se solicita explicitly legacy, mostramos el administrador local
-      if (location.search.includes('admin=legacy')) {
-        document.getElementById('loginScreen').style.display = 'flex';
-      } else {
-        // Cargar la interfaz que creamos (cargar produstos.html) dentro de un iframe
-        const iframeContainer = document.getElementById('adminIframe');
-        iframeContainer.style.display = 'block';
-        iframeContainer.innerHTML = `<iframe src="cargar produstos.html" style="width:100%;height:85vh;border:0;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.12)"></iframe>`;
-        // ocultar pantallas locales
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminScreen').style.display = 'none';
-        // scroll to admin area
-        setTimeout(()=> window.scrollTo({ top: 160, behavior: 'smooth' }), 200);
-      }
-    }
-    /* ---------- EXPORTAR CATÁLOGO ---------- */
-function exportarCatalogo(formato = 'excel') {
-  if (!catalogo || catalogo.length === 0) {
-    alert('No hay productos para exportar');
-    return;
-  }
-
-  if (formato === 'json') {
-    const blob = new Blob([JSON.stringify(catalogo, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'catalogo_bazar.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  } else {
-    // Exportar a Excel
-    const datos = [['Categoría', 'Nombre', 'Precio']];
-    catalogo.forEach(p => datos.push([p.categoria, p.nombre, p.precio]));
-    const hoja = XLSX.utils.aoa_to_sheet(datos);
-    const libro = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(libro, hoja, 'Productos');
-    XLSX.writeFile(libro, 'catalogo_bazar.xlsx');
-  }
-
-  alert('Catálogo exportado correctamente');
-}
 
   </script>
 </body>
