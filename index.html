@@ -38,8 +38,20 @@
     .botones button{flex:1;padding:.75rem;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
     .btn-wsp{background:#f3f7f5;color:#fff}
     .btn-wsp:hover{background:#1ebe5d}
-    .btn-cancel{background:#ccc;color:#fff}
-    .btn-cancel:hover{background:#bbb}
+    .btn-wsp{
+    background: #25D366 !important; /* Color verde de WhatsApp */
+    color: white !important;
+    border: none !important;
+    padding: .75rem !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.btn-wsp:hover{
+    background: #128C7E !important; /* Verde más oscuro al pasar el cursor */
+}
     footer{text-align:center;padding:1.5rem;background:var(--tierra);color:#fff;margin-top:2rem}
   </style>
 </head>
@@ -145,7 +157,10 @@
 
   <script>
     /* ----------  CONFIG / DATOS INICIALES  ---------- */
-    const API_BASE = 'http://localhost:3000';
+    // Auto-detect server URL based on current location
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+      ? 'http://192.168.1.107:3000' 
+      : `${window.location.protocol}//${window.location.hostname}:3000`;
     // El catálogo se carga desde el backend
     let catalogo = [];
     
